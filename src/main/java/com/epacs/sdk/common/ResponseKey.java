@@ -1,4 +1,4 @@
-package com.epacs.sdk.recognition;
+package com.epacs.sdk.common;
 
 public class ResponseKey {
     public final static String logIdKey = "log_id";

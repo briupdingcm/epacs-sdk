@@ -1,7 +1,5 @@
 package com.epacs.sdk.recognition;
 
-import com.epacs.sdk.model.Result;
-import java.util.List;
 import java.util.Map;
 
 /**

@@ -4,14 +4,14 @@ import junit.framework.TestCase;
 
 public class ResponseTest extends TestCase {
     String jsonStr = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\"}"; //, ";  +
-           // "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
 
     String errJsonStr = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\"}"; //, " +
-           // "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
 
+    Response response;
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        response = new Response(jsonStr);
     }
 
     @Override

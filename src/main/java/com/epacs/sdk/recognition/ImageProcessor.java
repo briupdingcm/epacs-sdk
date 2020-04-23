@@ -26,16 +26,15 @@ public class ImageProcessor {
     private Configuration conf;
 
     // 线程池对象
-    private ExecutorService service;
+    private ExecutorService threadsPool;
 
 
 
     public ImageProcessor(String token, Configuration conf) {
         this.conf = conf;
         this.token = token;
-
         this.param = new JSONObject();
-        this.service = Executors.newCachedThreadPool();
+        this.threadsPool = Executors.newCachedThreadPool();
     }
 
     /**
@@ -85,7 +84,7 @@ public class ImageProcessor {
      * @throws URISyntaxException
      * @throws IOException
      */
-    public ImageResponse getImageInfo(Integer imageId) throws URISyntaxException, IOException {
+    public ImageResponse getImageInfo(Integer imageId) throws IOException {
         URI imageUrl = conf.getImagesPoint();
 
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId);
@@ -103,20 +102,20 @@ public class ImageProcessor {
      */
     public Map<String, Double> getResult(Integer taskId) throws IOException, URISyntaxException {
         // 获得任务信息
-        TaskResponse taskResp = getTaskInfo(taskId);
+        TaskResponse taskResponse = getTaskInfo(taskId);
         // 取出任务状态
-        TaskStatus taskStatus = taskResp.getStatus();
+        TaskStatus taskStatus = taskResponse.getStatus();
         // 如果任务处于就绪或运行中， 继续轮询
         while(TaskStatus.READY.equals(taskStatus)
                 || TaskStatus.RUNNING.equals(taskStatus)){
-            taskResp = getTaskInfo(taskId);
-            taskStatus = taskResp.getStatus();
+            taskResponse = getTaskInfo(taskId);
+            taskStatus = taskResponse.getStatus();
         }
         // 任务失败，终止任务，抛出异常
         if(TaskStatus.FAILURE.equals(taskStatus)){
-            throw new TaskException(taskResp.getErrorCode(), taskResp.getErrorMsg());
+            throw new TaskException(taskResponse.getErrorCode(), taskResponse.getErrorMsg());
         }else if(TaskStatus.SUCCESS.equals(taskStatus)) { //任务成功结束
-            Integer imageId = taskResp.getImageId();
+            Integer imageId = taskResponse.getImageId();
             ImageResponse imageResponse = getImageInfo(imageId);
             return imageResponse.getResults();
         }else {
@@ -150,7 +149,6 @@ public class ImageProcessor {
 
         // 获得任务编号
         Integer taskId = taskResponse.getTaskId();
-        //JsonUtils.getIntValue(resp,"task_id");
 
         Long  time = conf.getWaitTime();
 
@@ -189,7 +187,7 @@ public class ImageProcessor {
 
                         callback.callback(new Integer(0), errorCode, errorMsg, imageResponse.getResults());
 
-                    }catch(Exception e){
+                    }catch(InterruptedException | IOException e){
                         e.printStackTrace();
                     }
                 }
@@ -200,7 +198,7 @@ public class ImageProcessor {
         // 判断任务是否已交成功，如果任务提交成功，则启动新的线程查询任务的执行结果
         if(taskResponse.getErrorCode() == ErrorCode.SUCCESS.getErrorCode()){
             // 启动子线程，发送HTTP的GET请求发送请求获取图像的识别结果，使用循环进行轮训查新
-            this.service.submit(new RecognitionThread(taskId, time));
+            this.threadsPool.execute(new RecognitionThread(taskId, time));
         }
     }
 

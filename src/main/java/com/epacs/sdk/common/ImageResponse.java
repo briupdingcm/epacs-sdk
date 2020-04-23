@@ -2,7 +2,6 @@ package com.epacs.sdk.common;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.recognition.ResponseKey;
 
 import java.util.HashMap;
 import java.util.Iterator;
