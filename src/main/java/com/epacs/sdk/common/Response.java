@@ -7,9 +7,10 @@ public class Response {
     private Integer errorCode;
     private String errorMsg;
 
-    public Response(String jsonStr){
+    public Response(String jsonStr) throws ResponseException {
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
         logId = jsonObj.getInteger(ResponseKey.logIdKey);
+        if (logId == null)throw new ResponseException("logId can not be empty");
         errorCode = jsonObj.getInteger(ResponseKey.errorCodeKey);
         errorMsg = jsonObj.getString(ResponseKey.errorMsgKey);
     }

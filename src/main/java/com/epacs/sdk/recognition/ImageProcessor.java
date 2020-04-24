@@ -47,16 +47,21 @@ public class ImageProcessor {
         //请提供实现过程
     }
 
-    private void checkResponse(String resp){
+    private void checkResponse(String resp) throws UnAuthorizedException, InternalException {
         // 获得响应码
         Integer errorCode = JsonUtils.getIntValue(resp, "error_code");
+        String errorMsg = JsonUtils.getStringValue(resp, "error_msg");
+        if (errorCode == ErrorCode.UNAUTHORIZED.getErrorCode())
+            throw new UnAuthorizedException(errorCode, errorMsg);
+        if (errorCode == ErrorCode.INTREVAL_ERROR.getErrorCode())
+            throw new InternalException("server internal error");
         if(errorCode != ErrorCode.SUCCESS.getErrorCode()) {
             // 请求处理失败，识别过程终止，抛出异常
             throw new TaskException(errorCode, JsonUtils.getStringValue(resp, "error_msg"));
         }
     }
 
-    public TaskResponse createTask(String image) throws IOException {
+    public TaskResponse createTask(String image) throws IOException, InternalException, UnAuthorizedException, ResponseException {
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
         // 发送POST请求，提交任务参数图像
@@ -67,7 +72,7 @@ public class ImageProcessor {
     }
 
 
-    public TaskResponse getTaskInfo(Integer taskId) throws IOException {
+    public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, UnAuthorizedException, ResponseException {
         URI taskUrl = conf.getTasksPoint();
         // 任务状态查询点
         URI taskStatusUrl = URI.create(taskUrl + "/" + taskId);
@@ -84,7 +89,7 @@ public class ImageProcessor {
      * @throws URISyntaxException
      * @throws IOException
      */
-    public ImageResponse getImageInfo(Integer imageId) throws IOException {
+    public ImageResponse getImageInfo(Integer imageId) throws IOException, InternalException, UnAuthorizedException, ResponseException {
         URI imageUrl = conf.getImagesPoint();
 
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId);
@@ -100,7 +105,7 @@ public class ImageProcessor {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public Map<String, Double> getResult(Integer taskId) throws IOException, URISyntaxException {
+    public Map<String, Double> getResult(Integer taskId) throws IOException, URISyntaxException, UnAuthorizedException, InternalException, ResponseException {
         // 获得任务信息
         TaskResponse taskResponse = getTaskInfo(taskId);
         // 取出任务状态
@@ -123,7 +128,7 @@ public class ImageProcessor {
         }
     }
 
-    public Map<String, Double> submit(final String image) throws ImageFormatException, URISyntaxException, IOException {
+    public Map<String, Double> submit(final String image) throws ImageFormatException, URISyntaxException, IOException, UnAuthorizedException, InternalException, ResponseException {
         checkImage(image);
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
@@ -142,7 +147,7 @@ public class ImageProcessor {
      * @param callback
      *     回调接口对象
      */
-    public void submit(final String image, final ResultCallback callback) throws ImageFormatException, URISyntaxException, IOException, TaskException {
+    public void submit(final String image, final ResultCallback callback) throws ImageFormatException, URISyntaxException, IOException, TaskException, UnAuthorizedException, InternalException, ResponseException {
         checkImage(image);
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
@@ -188,6 +193,10 @@ public class ImageProcessor {
                         callback.callback(new Integer(0), errorCode, errorMsg, imageResponse.getResults());
 
                     }catch(InterruptedException | IOException e){
+                        e.printStackTrace();
+                    } catch (InternalException e) {
+                        e.printStackTrace();
+                    } catch (UnAuthorizedException | ResponseException e) {
                         e.printStackTrace();
                     }
                 }

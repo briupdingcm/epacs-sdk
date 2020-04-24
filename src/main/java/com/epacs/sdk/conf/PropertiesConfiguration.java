@@ -16,24 +16,50 @@ public class PropertiesConfiguration implements Configuration {
     private static String time = "delay_ms";
 
     private Properties props;
+    private URI appPoint;
+    private URI tasksPoint;
+    private URI imagesPoint;
+
+    public PropertiesConfiguration() {
+    }
+
     public PropertiesConfiguration(InputStream is) throws IOException {
         props = new Properties();
         props.load(is);
-
+        appPoint = URI.create(props.getProperty(appPointName));
+        tasksPoint = URI.create(props.getProperty(taskPointName));
+        imagesPoint = URI.create(props.getProperty(imagePointName));
     }
     @Override
     public URI getAppPoint() {
-        return URI.create(props.getProperty(appPointName));
+        return appPoint;
+    }
+
+    @Override
+    public void setAppPoint(URI appPoint) {
+        this.appPoint = appPoint;
     }
 
     @Override
     public URI getTasksPoint() {
-        return URI.create(props.getProperty(taskPointName));
+        return tasksPoint;
+    }
+
+
+
+    @Override
+    public void setTasksPoint(URI tasksPoint) {
+        this.tasksPoint = tasksPoint;
+    }
+
+    @Override
+    public void setImagesPoint(URI imagesPoint) {
+        this.imagesPoint = imagesPoint;
     }
 
     @Override
     public URI getImagesPoint() {
-        return URI.create(props.getProperty(imagePointName));
+        return this.imagesPoint;
     }
 
     @Override
@@ -50,4 +76,10 @@ public class PropertiesConfiguration implements Configuration {
     public String getPassword() {
         return props.getProperty(password);
     }
+
+    @Override
+    public void setTasksPoint(String s) {
+        tasksPoint = URI.create(s);
+    }
+
 }

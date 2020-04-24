@@ -24,8 +24,8 @@ public enum ErrorCode{
         this.errorCode=errorCode;
     }
 
-    public Integer getErrorCode(){
-        return errorCode;
+    public int getErrorCode(){
+        return errorCode.intValue();
     }
 
     public void setErrorCode(Integer errorCode){

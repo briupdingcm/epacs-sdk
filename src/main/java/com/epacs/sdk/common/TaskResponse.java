@@ -9,7 +9,7 @@ public class TaskResponse {
     private TaskStatus status;
     private Integer        imageId;
 
-    public TaskResponse(String jsonStr){
+    public TaskResponse(String jsonStr) throws ResponseException {
         response = new Response(jsonStr);
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
         taskId = jsonObj.getInteger(ResponseKey.taskIdKey);

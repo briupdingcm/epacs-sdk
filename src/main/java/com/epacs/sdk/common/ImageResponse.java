@@ -11,7 +11,7 @@ public class ImageResponse {
     private Response response;
     private Map results = new HashMap<>();
 
-    public ImageResponse(String jsonStr){
+    public ImageResponse(String jsonStr) throws ResponseException {
         response = new Response(jsonStr);
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
         JSONArray arrayResults = jsonObj.getJSONArray(ResponseKey.imageResultsKey);
@@ -57,9 +57,5 @@ public class ImageResponse {
         this.response.setErrorMsg(errorMsg);
     }
 
-    public static void main(String... args){
-        String jsonStr = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
-        ImageResponse ir = new ImageResponse(jsonStr);
-    }
+
 }
