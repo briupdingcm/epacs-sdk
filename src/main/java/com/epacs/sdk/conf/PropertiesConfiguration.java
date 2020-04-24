@@ -22,7 +22,7 @@ public class PropertiesConfiguration implements Configuration {
         appPoint = URI.create(props.getProperty(APP_POINT_KEY));
         tasksPoint = URI.create(props.getProperty(TASK_POINT_KEY));
         imagesPoint = URI.create(props.getProperty(IMAGE_POINT_KEY));
-        waitTime = Long.parseLong(TIME_KEY);
+        waitTime = Long.parseLong(props.getProperty(TIME_KEY));
     }
     @Override
     public URI getAppPoint() {

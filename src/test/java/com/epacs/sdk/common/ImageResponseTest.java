@@ -5,8 +5,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ImageResponseTest{
     String jsonStr = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
@@ -16,7 +15,12 @@ public class ImageResponseTest{
 
     @Before
     public void createImageResponse() throws ResponseException {
-        ir = new ImageResponse(jsonStr);
+        try {
+            ir =  ImageResponse.parse(jsonStr);
+            assertNotNull(ir);
+        } catch (RequestException | InternalException e) {
+            fail("");
+        }
     }
 
     @After
@@ -26,7 +30,11 @@ public class ImageResponseTest{
 
     @Test
     public void testImageResponse() throws ResponseException {
-        ir = ImageResponse.parse(jsonStr);
+        try {
+            ir = ImageResponse.parse(jsonStr);
+        } catch (RequestException | InternalException e) {
+            fail("");
+        }
         assertNotNull(ir);
     }
 
