@@ -1,11 +1,9 @@
 package com.epacs.sdk.common;
 
-import junit.framework.TestCase;
+import com.epacs.sdk.model.ImageResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

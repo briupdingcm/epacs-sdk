@@ -1,6 +1,8 @@
-package com.epacs.sdk.common;
+package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
+import com.epacs.sdk.common.ResponseException;
+import com.epacs.sdk.common.TaskStatus;
 
 public class TaskResponse {
     private Response response;

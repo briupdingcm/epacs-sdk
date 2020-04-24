@@ -1,6 +1,7 @@
-package com.epacs.sdk.common;
+package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
+import com.epacs.sdk.common.ResponseException;
 
 public class Response {
     private Integer logId;

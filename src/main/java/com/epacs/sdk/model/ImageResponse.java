@@ -1,7 +1,8 @@
-package com.epacs.sdk.common;
+package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.epacs.sdk.common.ResponseException;
 
 import java.util.HashMap;
 import java.util.Iterator;

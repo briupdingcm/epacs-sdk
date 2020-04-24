@@ -1,8 +1,9 @@
 package com.epacs.sdk.recognition;
 
 import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.RequestException;
 import com.epacs.sdk.common.ResponseException;
-import com.epacs.sdk.common.TaskResponse;
+import com.epacs.sdk.model.TaskResponse;
 import com.epacs.sdk.common.UnAuthorizedException;
 import com.epacs.sdk.conf.Configuration;
 import com.epacs.sdk.conf.PropertiesConfiguration;
@@ -12,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -40,7 +40,12 @@ public class ImageProcessorTest {
         ImageProcessor ip = new ImageProcessor(token, conf);
 
         String image = "";
-        TaskResponse taskResponse = ip.createTask(image);
+        TaskResponse taskResponse = null;
+        try {
+            taskResponse = ip.createTask(image);
+        } catch (RequestException e) {
+            e.printStackTrace();
+        }
         assertNotNull(taskResponse);
     }
 }

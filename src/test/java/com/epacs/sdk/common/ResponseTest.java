@@ -1,6 +1,6 @@
 package com.epacs.sdk.common;
 
-import junit.framework.TestCase;
+import com.epacs.sdk.model.Response;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
