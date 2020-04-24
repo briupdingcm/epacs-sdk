@@ -1,30 +1,45 @@
 package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.common.ResponseException;
-import com.epacs.sdk.common.TaskStatus;
+import com.epacs.sdk.common.*;
 
 public class TaskResponse {
     private Response response;
-    private Integer    taskId;
+    private int    taskId;
     private String  createdBy;
     private TaskStatus status;
-    private Integer        imageId;
+    private String      imageId;
 
-    public TaskResponse(String jsonStr) throws ResponseException {
-        response = new Response(jsonStr);
-        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        taskId = jsonObj.getInteger(ResponseKey.taskIdKey);
-        createdBy = jsonObj.getString(ResponseKey.createdByKey);
-        status = TaskStatus.fromString(jsonObj.getString(ResponseKey.statusKey));
-        imageId =jsonObj.getInteger(ResponseKey.imageIdKey);
+    public TaskResponse(){}
+
+    public TaskResponse(Response response, int taskId, String createdBy,
+                        TaskStatus status, String imageId){
+        setResponse(response);
+        setTaskId(taskId);
+        setCreatedBy(createdBy);
+        setStatus(status);
+        setImageId(imageId);
     }
 
-    public Integer getTaskId() {
+    public static TaskResponse parse(String jsonStr) throws RequestException, InternalException {
+        Response response = Response.parse(jsonStr);
+        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+        int taskId = jsonObj.getInteger(ResponseKey.taskIdKey);
+        String createdBy = jsonObj.getString(ResponseKey.createdByKey);
+        TaskStatus status = TaskStatus.fromString(jsonObj.getString(ResponseKey.statusKey));
+        String imageId =jsonObj.getString(ResponseKey.imageIdKey);
+        return new TaskResponse(response, taskId, createdBy, status, imageId);
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
+    }
+
+    public int getTaskId() {
         return taskId;
     }
 
-    public void setTaskId(Integer taskId) {
+    public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
 
@@ -44,28 +59,28 @@ public class TaskResponse {
         this.status = status;
     }
 
-    public Integer getImageId() {
+    public String getImageId() {
         return imageId;
     }
 
-    public void setImageId(Integer imageId) {
+    public void setImageId(String imageId) {
         this.imageId = imageId;
     }
 
 
-    public Integer getLogId() {
+    public int getLogId() {
         return response.getLogId();
     }
 
-    public void setLogId(Integer logId) {
+    public void setLogId(int logId) {
         this.response.setLogId(logId);
     }
 
-    public Integer getErrorCode() {
+    public int getErrorCode() {
         return response.getErrorCode();
     }
 
-    public void setErrorCode(Integer errorCode) {
+    public void setErrorCode(int errorCode) {
         this.response.setErrorCode(errorCode);
     }
 

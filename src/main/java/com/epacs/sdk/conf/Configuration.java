@@ -14,9 +14,7 @@ public interface Configuration {
     public URI getImagesPoint();
     public void setImagesPoint(URI imagesPoint);
     // 轮询时间差
-    public Long getWaitTime();
-    public String getUserName();
-    public String getPassword();
+    public long getWaitTime();
 
-    public void setTasksPoint(String s);
+    public void setTasksPoint(String tasksPointStr);
 }

@@ -30,8 +30,6 @@ public class ImageProcessor {
     // 线程池对象
     private ExecutorService threadsPool;
 
-
-
     public ImageProcessor(String token, Configuration conf) {
         this.conf = conf;
         this.token = token;
@@ -49,46 +47,26 @@ public class ImageProcessor {
         //请提供实现过程
     }
 
-    private void checkResponse(String resp) throws UnAuthorizedException, InternalException, RequestException {
-        // 获得响应码
-        Integer errorCode = JsonUtils.getIntValue(resp, "error_code");
-        String errorMsg = JsonUtils.getStringValue(resp, "error_msg");
-        if (errorCode == ErrorCode.SUCCESS.getErrorCode() ||
-            errorCode == ErrorCode.ACCEPT.getErrorCode()){
-            return;
-        }
 
-        if (errorCode == ErrorCode.UNAUTHORIZED.getErrorCode())
-            throw new UnAuthorizedException(errorCode, errorMsg);
-        if (errorCode == ErrorCode.INTREVAL_ERROR.getErrorCode())
-            throw new InternalException("server internal error");
-        if (errorCode == ErrorCode.CONDITIION_INVALID.getErrorCode() ||
-                errorCode == ErrorCode.LARGE_REQUEST.getErrorCode() ||
-                errorCode == ErrorCode.ERRORR_EQUEST.getErrorCode() ||
-                errorCode == ErrorCode.NONE_EXIST.getErrorCode())
-            throw new RequestException(errorCode, errorMsg);
 
-    }
-
-    public TaskResponse createTask(String image) throws IOException, InternalException, UnAuthorizedException, ResponseException, RequestException {
+    public TaskResponse createTask(String image) throws IOException, InternalException, RequestException {
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
         // 发送POST请求，提交任务参数图像
         param.put("image",image);
         String resp = HttpUtils.post(taskUrl, token, param);
-        checkResponse(resp);
-        return new TaskResponse(resp);
+        //checkResponse(resp);
+        return  TaskResponse.parse(resp);
     }
 
 
-    public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, UnAuthorizedException, ResponseException, RequestException {
+    public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, RequestException {
         URI taskUrl = conf.getTasksPoint();
         // 任务状态查询点
         URI taskStatusUrl = URI.create(taskUrl + "/" + taskId);
         // 查询任务状态
         String resp = HttpUtils.get(taskStatusUrl, this.token);
-        checkResponse(resp);
-        return  new TaskResponse(resp);
+        return  TaskResponse.parse(resp);
     }
 
     /**
@@ -98,13 +76,12 @@ public class ImageProcessor {
      * @throws URISyntaxException
      * @throws IOException
      */
-    public ImageResponse getImageInfo(Integer imageId) throws IOException, InternalException, UnAuthorizedException, ResponseException, RequestException {
+    public ImageResponse getImageInfo(String imageId) throws IOException, RequestException, InternalException {
         URI imageUrl = conf.getImagesPoint();
 
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId);
         String resp = HttpUtils.get(imageStatusUrl, this.token);
-        checkResponse(resp);
-        return new ImageResponse(resp);
+        return  ImageResponse.parse(resp);
     }
 
     /**
@@ -112,9 +89,9 @@ public class ImageProcessor {
      * @param taskId 任务编号
      * @return 图像污染程度的置信度
      * @throws IOException
-     * @throws URISyntaxException
+     *
      */
-    public Map<String, Double> getResult(Integer taskId) throws IOException, URISyntaxException, UnAuthorizedException, InternalException, ResponseException, RequestException {
+    public Map<String, Double> getResult(Integer taskId) throws IOException, InternalException, RequestException {
         // 获得任务信息
         TaskResponse taskResponse = getTaskInfo(taskId);
         // 取出任务状态
@@ -129,7 +106,7 @@ public class ImageProcessor {
         if(TaskStatus.FAILURE.equals(taskStatus)){
             throw new TaskException(taskResponse.getErrorCode(), taskResponse.getErrorMsg());
         }else if(TaskStatus.SUCCESS.equals(taskStatus)) { //任务成功结束
-            Integer imageId = taskResponse.getImageId();
+            String imageId = taskResponse.getImageId();
             ImageResponse imageResponse = getImageInfo(imageId);
             return imageResponse.getResults();
         }else {
@@ -137,7 +114,7 @@ public class ImageProcessor {
         }
     }
 
-    public Map<String, Double> submit(final String image) throws ImageFormatException, URISyntaxException, IOException, UnAuthorizedException, InternalException, ResponseException, RequestException {
+    public Map<String, Double> submit(final String image) throws ImageFormatException, IOException, InternalException, RequestException {
         checkImage(image);
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
@@ -156,7 +133,7 @@ public class ImageProcessor {
      * @param callback
      *     回调接口对象
      */
-    public void submit(final String image, final ResultCallback callback) throws ImageFormatException, URISyntaxException, IOException, TaskException, UnAuthorizedException, InternalException, ResponseException, RequestException {
+    public void submit(final String image, final ResultCallback callback) throws ImageFormatException, IOException, TaskException, InternalException, RequestException {
         checkImage(image);
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
@@ -196,7 +173,7 @@ public class ImageProcessor {
 
                         Integer errorCode = taskResponse.getErrorCode();
                         String errorMsg = taskResponse.getErrorMsg();
-                        Integer imageId = taskResponse.getImageId();
+                        String imageId = taskResponse.getImageId();
                         ImageResponse imageResponse = getImageInfo(imageId);
 
                         callback.callback(new Integer(0), errorCode, errorMsg, imageResponse.getResults());
@@ -205,7 +182,7 @@ public class ImageProcessor {
                         e.printStackTrace();
                     } catch (InternalException e) {
                         e.printStackTrace();
-                    } catch (UnAuthorizedException | ResponseException | RequestException e) {
+                    } catch (RequestException e) {
                         e.printStackTrace();
                     }
                 }

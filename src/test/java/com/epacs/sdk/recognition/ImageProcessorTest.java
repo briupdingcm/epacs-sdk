@@ -4,7 +4,6 @@ import com.epacs.sdk.common.InternalException;
 import com.epacs.sdk.common.RequestException;
 import com.epacs.sdk.common.ResponseException;
 import com.epacs.sdk.model.TaskResponse;
-import com.epacs.sdk.common.UnAuthorizedException;
 import com.epacs.sdk.conf.Configuration;
 import com.epacs.sdk.conf.PropertiesConfiguration;
 import okhttp3.mockwebserver.MockResponse;
@@ -14,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ImageProcessorTest {
@@ -26,7 +26,7 @@ public class ImageProcessorTest {
         ip = new ImageProcessor("", conf);
     }
     @Test
-    public void testCreateTask() throws IOException, UnAuthorizedException, InternalException, ResponseException {
+    public void testCreateTask() throws IOException, InternalException, ResponseException {
         String resp = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
                 "\"task_id\":\"2\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
         MockWebServer server = new MockWebServer();
@@ -35,7 +35,7 @@ public class ImageProcessorTest {
         mr.setHeader("Authorization", token);
         mr.setBody(resp);
         server.enqueue(mr);
-
+        server.start();
         conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
@@ -44,7 +44,7 @@ public class ImageProcessorTest {
         try {
             taskResponse = ip.createTask(image);
         } catch (RequestException e) {
-            e.printStackTrace();
+            fail("");
         }
         assertNotNull(taskResponse);
     }

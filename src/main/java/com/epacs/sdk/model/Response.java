@@ -1,34 +1,58 @@
 package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.common.ResponseException;
+import com.epacs.sdk.common.*;
 
 public class Response {
-    private Integer logId;
-    private Integer errorCode;
+    private int logId;
+    private int errorCode;
     private String errorMsg;
 
-    public Response(String jsonStr) throws ResponseException {
-        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        logId = jsonObj.getInteger(ResponseKey.logIdKey);
-        if (logId == null)throw new ResponseException("logId can not be empty");
-        errorCode = jsonObj.getInteger(ResponseKey.errorCodeKey);
-        errorMsg = jsonObj.getString(ResponseKey.errorMsgKey);
+    public Response(){}
+
+
+
+    public Response(int logId, int errorCode, String errorMsg){
+        setLogId(logId);
+        setErrorCode(errorCode);
+        setErrorMsg(errorMsg);
     }
 
-    public Integer getLogId() {
+    public static Response parse(String jsonStr) throws InternalException, RequestException {
+        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+
+        // 获得响应码
+        int errorCode = jsonObj.getIntValue(ResponseKey.errorCodeKey);
+        String errorMsg = jsonObj.getString(ResponseKey.errorMsgKey);
+        int logId = jsonObj.getIntValue(ResponseKey.logIdKey);
+
+        if (errorCode == ErrorCode.SUCCESS.getErrorCode() ||
+                errorCode == ErrorCode.ACCEPT.getErrorCode()) {
+            return new Response(logId, errorCode, errorMsg);
+        } else if (errorCode == ErrorCode.CONDITIION_INVALID.getErrorCode() ||
+                errorCode == ErrorCode.LARGE_REQUEST.getErrorCode() ||
+                errorCode == ErrorCode.ERRORR_EQUEST.getErrorCode() ||
+                errorCode == ErrorCode.NONE_EXIST.getErrorCode() ||
+                errorCode == ErrorCode.UNAUTHORIZED.getErrorCode()) {
+            throw new RequestException(errorCode, errorMsg);
+        }else{
+            throw new InternalException("server internal error");
+        }
+    }
+
+    public int getLogId() {
         return logId;
     }
 
-    public void setLogId(Integer logId) {
+    public void setLogId(int logId) {
         this.logId = logId;
     }
 
-    public Integer getErrorCode() {
+    public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(Integer errorCode) {
+    public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 

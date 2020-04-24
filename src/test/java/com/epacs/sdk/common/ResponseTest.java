@@ -3,6 +3,7 @@ package com.epacs.sdk.common;
 import com.epacs.sdk.model.Response;
 import org.junit.jupiter.api.Test;
 
+import static com.epacs.sdk.model.Response.parse;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ResponseTest{
@@ -15,20 +16,20 @@ public class ResponseTest{
 
 
     @Test
-    public void testConstructor()  {
+    public void testParse()  {
         try {
-            assertNotNull(new Response(jsonStr));
-        } catch (ResponseException e) {
+            assertNotNull(parse(jsonStr));
+        } catch (InternalException | RequestException e) {
             fail("");
         }
     }
 
     @Test
-    public void testConstructorEx() {
+    public void testParseEx(){
         try {
-            new Response(errJsonStr);
-        } catch (ResponseException e) {
-            ;
+            Response.parse(errJsonStr);
+        }catch(RequestException | InternalException e){
+
         }
     }
 
@@ -36,11 +37,13 @@ public class ResponseTest{
     @Test
     public void testGetLogId(){
         try {
-            response = new Response(jsonStr);
-        } catch (ResponseException e) {
-            fail(e);
+            response = parse(jsonStr);
+        } catch (InternalException e) {
+            e.printStackTrace();
+        } catch (RequestException e) {
+            e.printStackTrace();
         }
-        assertEquals(new Integer(1), response.getLogId());
+        assertEquals(1, response.getLogId());
     }
 
 
@@ -48,19 +51,23 @@ public class ResponseTest{
     @Test
     public void testGetErrorCode(){
         try {
-            response = new Response(jsonStr);
-        } catch (ResponseException e) {
-            fail(e);
+            response = Response.parse(jsonStr);
+        } catch (InternalException e) {
+            e.printStackTrace();
+        } catch (RequestException e) {
+            e.printStackTrace();
         }
-        assertEquals(new Integer(200), response.getErrorCode());
+        assertEquals(200, response.getErrorCode());
     }
 
     @Test
     public void testGetErrorMsg(){
         try {
-            response = new Response(jsonStr);
-        } catch (ResponseException e) {
-            fail(e);
+            response = Response.parse(jsonStr);
+        } catch (InternalException e) {
+            e.printStackTrace();
+        } catch (RequestException e) {
+            e.printStackTrace();
         }
         assertEquals("hello", response.getErrorMsg());
     }

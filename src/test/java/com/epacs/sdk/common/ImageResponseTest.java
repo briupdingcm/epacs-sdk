@@ -26,7 +26,7 @@ public class ImageResponseTest{
 
     @Test
     public void testImageResponse() throws ResponseException {
-        ir = new ImageResponse(jsonStr);
+        ir = ImageResponse.parse(jsonStr);
         assertNotNull(ir);
     }
 

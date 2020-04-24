@@ -14,7 +14,9 @@ public class PropertiesConfigurationTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         is = PropertiesConfigurationTest.class.getResourceAsStream("/epacs.properties");
-        conf  = new PropertiesConfiguration(is);
+        Properties properties = new Properties();
+        properties.load(is);
+        conf  = new PropertiesConfiguration(properties);
     }
 
     @Override
@@ -23,15 +25,7 @@ public class PropertiesConfigurationTest extends TestCase {
         if (is != null)is.close();
     }
 
-    public void testPropertiesConfigurationNotNull(){
-        is = PropertiesConfiguration.class.getResourceAsStream("/epacs.properties");
-        assertNotNull(is);
-    }
 
-    public void testPropertiesConfigurationNull(){
-        is = PropertiesConfiguration.class.getResourceAsStream("/epacs-client.properties");
-        assertNull(is);
-    }
 
     public void testGetAppPoint() {
         URI appPoint = URI.create("/api");
