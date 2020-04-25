@@ -17,4 +17,6 @@ public interface Configuration {
     public long getWaitTime();
 
     public void setTasksPoint(String tasksPointStr);
+
+    public void setImagesPoint(String s);
 }

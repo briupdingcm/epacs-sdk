@@ -50,6 +50,11 @@ public class PropertiesConfiguration implements Configuration {
     }
 
     @Override
+    public void setImagesPoint(String s) {
+        imagesPoint = URI.create(s);
+    }
+
+    @Override
     public void setImagesPoint(URI imagesPoint) {
         this.imagesPoint = imagesPoint;
     }
