@@ -7,8 +7,12 @@ import com.epacs.sdk.model.ImageResponse;
 import com.epacs.sdk.model.TaskResponse;
 import com.epacs.sdk.conf.Configuration;
 import com.epacs.sdk.conf.PropertiesConfiguration;
+//import okhttp3.Dispatcher;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,25 +24,53 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ImageProcessorTest {
-    Configuration conf;
-    ImageProcessor ip;
+
     String token = "";
+    MockWebServer server;
     @Before
-    public void start(){
-        conf = new PropertiesConfiguration();
-        ip = new ImageProcessor("", conf);
-    }
-    @Test
-    public void createTask() throws IOException, InternalException, ResponseException {
-        String resp = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"task_id\":\"2\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
-        MockWebServer server = new MockWebServer();
-        MockResponse mr = new MockResponse();
-        mr.setHeader("Content-Type", "application/json");
-        mr.setHeader("Authorization", token);
-        mr.setBody(resp);
-        server.enqueue(mr);
+    public void start() throws IOException {
+
+        final String resp1 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
+                "\"task_id\":\"22\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
+        final String resp2 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
+                "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
+
+        final Dispatcher dispatcher = new Dispatcher() {
+
+            @NotNull
+            @Override
+            public MockResponse dispatch(@NotNull RecordedRequest recordedRequest) {
+                System.out.println(recordedRequest.getPath());
+                if (recordedRequest.getPath().equals("/api/tasks")){
+                    return new MockResponse().setResponseCode(200)
+                            .setHeader("Content-Type", "application/json; charset=utf-8")
+                            .setBody(resp1);
+                } else if (recordedRequest.getPath().equals("/api/tasks/22")){
+                    return new MockResponse().setResponseCode(200)
+                            .setHeader("Content-Type", "application/json; charset=utf-8")
+                            .setBody(resp1);
+                } else if (recordedRequest.getPath().equals("/api/images/2222?query=result")) {
+                    return new MockResponse().setResponseCode(200)
+                            .setHeader("Content-Type", "application/json; charset=utf-8")
+                            .setBody(resp2);
+                } else {
+                    return new MockResponse().setResponseCode(404);
+                }
+            }
+        };
+        server = new MockWebServer();
+        server.setDispatcher(dispatcher);
         server.start();
+    }
+
+    @Test
+    public void stop() throws IOException {
+        server.shutdown();
+    }
+
+    @Test
+    public void createTask() throws IOException, InternalException, ResponseException, InterruptedException {
+        Configuration conf = new PropertiesConfiguration();
         conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
@@ -47,49 +79,37 @@ public class ImageProcessorTest {
         try {
             taskResponse = ip.createTask(image);
         } catch (RequestException e) {
-            fail("");
+            fail(e.getMessage());
         }
         assertNotNull(taskResponse);
+        RecordedRequest rr = server.takeRequest();
+        assertEquals("POST", rr.getMethod().toUpperCase());
+
     }
 
     @Test
-    public void getTaskInfo(){
-        String resp = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"task_id\":\"2\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
-        MockWebServer server = new MockWebServer();
-        MockResponse mr = new MockResponse();
-        mr.setHeader("Content-Type", "application/json");
-        mr.setHeader("Authorization", token);
-        mr.setBody(resp);
-        server.enqueue(mr);
-        //server.start();
+    public void getTaskInfo() throws InterruptedException {
+        Configuration conf = new PropertiesConfiguration();
         conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
-
         ImageProcessor ip = new ImageProcessor(token, conf);
 
         String image = "";
         TaskResponse taskResponse = null;
         try {
-            taskResponse = ip.getTaskInfo(2);
+            taskResponse = ip.getTaskInfo(22);
         } catch (RequestException | InternalException | IOException e) {
-            e.printStackTrace();
-            fail("");
+            fail(e.getMessage());
         }
         assertNotNull(taskResponse);
+        RecordedRequest rr = server.takeRequest();
+        assertEquals("GET", rr.getMethod().toUpperCase());
+
     }
 
     @Test
-    public void getImageInfo(){
-        String resp = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
-        MockWebServer server = new MockWebServer();
-        MockResponse mr = new MockResponse();
-        mr.setHeader("Content-Type", "application/json");
-        mr.setHeader("Authorization", token);
-        mr.setBody(resp);
-        server.enqueue(mr);
-        //server.start();
-
+    public void getImageInfo() throws InterruptedException {
+        Configuration conf = new PropertiesConfiguration();
+        //conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
         conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
@@ -98,40 +118,26 @@ public class ImageProcessorTest {
         try {
             imageResponse = ip.getImageInfo("2222");
         } catch (RequestException | InternalException | IOException e) {
-            e.printStackTrace();
-            fail("");
+            fail(e.getMessage());
         }
         assertNotNull(imageResponse);
+        RecordedRequest rr = server.takeRequest();
+        assertEquals("GET", rr.getMethod().toUpperCase());
+
     }
 
     @Test
     public void getResult(){
-        String resp1 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"task_id\":\"2\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
-        String resp2 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
-        MockWebServer server = new MockWebServer();
-        MockResponse mr1 = new MockResponse();
-        mr1.setHeader("Content-Type", "application/json");
-        mr1.setHeader("Authorization", token);
-        mr1.setBody(resp1);
-        MockResponse mr2 = new MockResponse();
-        mr2.setHeader("Content-Type", "application/json");
-        mr2.setHeader("Authorization", token);
-        mr2.setBody(resp2);
-
-        server.enqueue(mr1);
-        server.enqueue(mr2);
-//        server.start();
-
+        Configuration conf = new PropertiesConfiguration();
         conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
         conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
+
         String image = "";
         Map<String, Double > results = null;
         try {
-            results = ip.getResult(2);
+            results = ip.getResult(22);
         } catch (RequestException | InternalException | IOException e) {
             fail(e.getMessage());
         }
