@@ -6,6 +6,7 @@ public interface Configuration {
     // 生产系统的起点
     public URI getAppPoint();
     public void setAppPoint(URI appPoint);
+    public void setAppPoint(String appPoint);
     // 任务状态访问点
     public URI getTasksPoint();
     public void setTasksPoint(URI tasksPoint);

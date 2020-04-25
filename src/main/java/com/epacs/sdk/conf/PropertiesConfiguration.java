@@ -30,6 +30,11 @@ public class PropertiesConfiguration implements Configuration {
     }
 
     @Override
+    public void setAppPoint(String appPoint) {
+        setAppPoint(URI.create(appPoint));
+    }
+
+    @Override
     public void setAppPoint(URI appPoint) {
         this.appPoint = appPoint;
     }

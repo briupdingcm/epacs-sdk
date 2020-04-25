@@ -3,6 +3,7 @@ package com.epacs.sdk.conf;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,12 +11,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
-public class PropertiesConfigurationTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PropertiesConfigurationTest{
     InputStream is;
     Configuration conf;
     @Before
-    public void setUp() throws Exception {
-        super.setUp();
+    @BeforeEach
+    public void start() throws Exception {
         is = PropertiesConfigurationTest.class.getResourceAsStream("/epacs.properties");
         Properties properties = new Properties();
         properties.load(is);
@@ -23,8 +26,7 @@ public class PropertiesConfigurationTest extends TestCase {
     }
 
     @After
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public void stop() throws Exception {
         if (is != null)is.close();
     }
 
@@ -32,6 +34,7 @@ public class PropertiesConfigurationTest extends TestCase {
     @Test
     public void testGetAppPoint() {
         URI appPoint = URI.create("/api");
+        conf.setAppPoint("/api");
         assertEquals(appPoint, conf.getAppPoint());
     }
 
@@ -66,6 +69,7 @@ public class PropertiesConfigurationTest extends TestCase {
     @Test
     public void testGetImagesPoint() {
         URI imagesPoint = URI.create("/api/images");
+        conf.setImagesPoint("/api/images");
         assertEquals(imagesPoint, conf.getImagesPoint());
     }
 

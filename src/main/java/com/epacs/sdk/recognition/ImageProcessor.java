@@ -3,10 +3,9 @@ package com.epacs.sdk.recognition;
 import com.alibaba.fastjson.JSONObject;
 import com.epacs.sdk.common.*;
 import com.epacs.sdk.conf.Configuration;
+import com.epacs.sdk.model.Request;
 import com.epacs.sdk.model.ImageResponse;
 import com.epacs.sdk.model.TaskResponse;
-import com.epacs.sdk.utils.HttpUtils;
-import com.epacs.sdk.utils.JsonUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -53,9 +52,13 @@ public class ImageProcessor {
     public TaskResponse createTask(String image) throws IOException, InternalException, RequestException {
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
+
+        Request request = new Request(image);
+
+        String resp = request.doPost(taskUrl, this.token);
         // 发送POST请求，提交任务参数图像
-        param.put("image",image);
-        String resp = HttpUtils.post(taskUrl, token, param);
+//        param.put("image",image);
+//        String resp = HttpUtils.post(taskUrl, token, param);
         //checkResponse(resp);
         return  TaskResponse.parse(resp);
     }
@@ -66,7 +69,9 @@ public class ImageProcessor {
         // 任务状态查询点
         URI taskStatusUrl = URI.create(taskUrl + "/" + taskId);
         // 查询任务状态
-        String resp = HttpUtils.get(taskStatusUrl, this.token);
+        Request request = new Request();
+        String resp = request.doGet(taskStatusUrl, this.token);
+        //String resp = HttpUtils.get(taskStatusUrl, this.token);
         return  TaskResponse.parse(resp);
     }
 
@@ -81,7 +86,11 @@ public class ImageProcessor {
         URI imageUrl = conf.getImagesPoint();
 
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId + "?query=result");
-        String resp = HttpUtils.get(imageStatusUrl, this.token);
+
+        Request request = new Request();
+
+        String resp = request.doGet(imageStatusUrl, this.token);
+        //String resp = HttpUtils.get(imageStatusUrl, this.token);
         return  ImageResponse.parse(resp);
     }
 
