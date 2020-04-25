@@ -17,5 +17,5 @@ public interface ResultCallback{
      * @param errorMsg 错误消息
      * @param results 识别结果
      */
-    void callback(Integer logId, Integer errorCode, String errorMsg, Map<String, Double> results);
+    void callback(int logId, int errorCode, String errorMsg, Map<String, Double> results);
 }

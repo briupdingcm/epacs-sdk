@@ -140,17 +140,17 @@ public class ImageProcessor {
         TaskResponse taskResponse = createTask(image);
 
         // 获得任务编号
-        Integer taskId = taskResponse.getTaskId();
+        int taskId = taskResponse.getTaskId();
 
-        Long  time = conf.getWaitTime();
+        long  time = conf.getWaitTime();
 
         // region ------------------------局部内部类------------------------
         // 局部内部类，线程类，封装用于查询识别结果
         class RecognitionThread implements Runnable{
-            private  Long waitTime;
-            private  Integer taskId;
+            private  long waitTime;
+            private  int taskId;
 
-            public RecognitionThread(Integer taskId, Long waitTime) {
+            public RecognitionThread(int taskId, long waitTime) {
                 this.taskId = taskId;
                 this.waitTime = waitTime;
             }
@@ -172,12 +172,12 @@ public class ImageProcessor {
                             taskStatus = taskResponse.getStatus();
                         }
 
-                        Integer errorCode = taskResponse.getErrorCode();
+                        int errorCode = taskResponse.getErrorCode();
                         String errorMsg = taskResponse.getErrorMsg();
                         String imageId = taskResponse.getImageId();
                         ImageResponse imageResponse = getImageInfo(imageId);
 
-                        callback.callback(new Integer(0), errorCode, errorMsg, imageResponse.getResults());
+                        callback.callback(0, errorCode, errorMsg, imageResponse.getResults());
 
                     }catch(InterruptedException | IOException e){
                         e.printStackTrace();

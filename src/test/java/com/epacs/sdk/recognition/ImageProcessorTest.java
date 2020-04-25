@@ -1,5 +1,6 @@
 package com.epacs.sdk.recognition;
 
+import com.epacs.sdk.common.ImageFormatException;
 import com.epacs.sdk.common.InternalException;
 import com.epacs.sdk.common.RequestException;
 import com.epacs.sdk.common.ResponseException;
@@ -142,5 +143,44 @@ public class ImageProcessorTest {
             fail(e.getMessage());
         }
         assertEquals(2, results.size());
+    }
+
+
+    @Test
+    public void submit(){
+        Configuration conf = new PropertiesConfiguration();
+        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
+        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
+        ImageProcessor ip = new ImageProcessor(token, conf);
+
+
+        String image = "";
+        Map<String, Double > results = null;
+        try {
+            results = ip.submit(image);
+        } catch (RequestException | InternalException | IOException | ImageFormatException e) {
+            fail(e.getMessage());
+        }
+        assertEquals(2, results.size());
+    }
+
+    @Test
+    public void submitAsync(){
+        Configuration conf = new PropertiesConfiguration();
+        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
+        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
+        ImageProcessor ip = new ImageProcessor(token, conf);
+
+        String image = "";
+        try {
+            ip.submit(image, new ResultCallback() {
+                @Override
+                public void callback(int logId, int errorCode, String errorMsg, Map<String, Double> results) {
+                    assertEquals(2, results.size());
+                }
+            });
+        } catch (RequestException | InternalException | IOException | ImageFormatException e) {
+            fail(e.getMessage());
+        }
     }
 }
