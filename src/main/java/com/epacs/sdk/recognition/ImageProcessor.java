@@ -16,9 +16,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * 提交任务和查询识别结果的API的封装
  *
+ * @create: 2020.04.13 18:24
  * @author: Kevin
+ * @description: . 图像处理器
  */
 public class ImageProcessor {
 
@@ -79,7 +80,7 @@ public class ImageProcessor {
     public ImageResponse getImageInfo(String imageId) throws IOException, RequestException, InternalException {
         URI imageUrl = conf.getImagesPoint();
 
-        URI imageStatusUrl = URI.create(imageUrl + "/" + imageId);
+        URI imageStatusUrl = URI.create(imageUrl + "/" + imageId + "?query=result");
         String resp = HttpUtils.get(imageStatusUrl, this.token);
         return  ImageResponse.parse(resp);
     }
