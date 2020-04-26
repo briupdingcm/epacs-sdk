@@ -1,5 +1,7 @@
 package com.epacs.sdk.recognition;
 
+import com.epacs.sdk.model.ImageResponse;
+
 import java.util.Map;
 
 /**
@@ -10,12 +12,9 @@ import java.util.Map;
  **/
 public interface ResultCallback{
     /**
-     *异步查询图像的识别结果，如果识别完成，则以JSON格式的数据返回
+     * 异步获得图像的识别结果
      *
-     * @param logId 唯一的id，用于问题定位
-     * @param errorCode 错误码
-     * @param errorMsg 错误消息
-     * @param results 识别结果
+     * @param response 图像处理结果
      */
-    void callback(int logId, int errorCode, String errorMsg, Map<String, Double> results);
+    public void callback(ImageResponse response);
 }

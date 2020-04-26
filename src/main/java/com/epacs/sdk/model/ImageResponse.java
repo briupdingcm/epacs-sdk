@@ -3,6 +3,7 @@ package com.epacs.sdk.model;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.Region;
 import com.epacs.sdk.common.RequestException;
 
 import java.util.HashMap;
@@ -11,13 +12,14 @@ import java.util.Map;
 
 public class ImageResponse {
     private Response response;
+    private Region  region;
     private Map<String, Double> results;
 
     public ImageResponse(){
         results = new HashMap<>();
     }
 
-    public ImageResponse(Response response, Map<String, Double> results){
+    public ImageResponse(Response response, Region region, Map<String, Double> results){
         setResponse(response);
         setResults(results);
     }
@@ -30,15 +32,16 @@ public class ImageResponse {
         Response response =  Response.parse(jsonStr);
         Map<String, Double> results = new HashMap<>();
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        JSONArray arrayResults = jsonObj.getJSONArray(ResponseKey.imageResultsKey);
+        Region region = Region.fromString(jsonObj.getString(ResponseKey.REGION_KEY));
+        JSONArray arrayResults = jsonObj.getJSONArray(ResponseKey.IMAGE_RESULTS_KEY);
         Iterator<Object> iter = arrayResults.iterator();
         while(iter.hasNext()) {
             JSONObject obj = (JSONObject) iter.next();
-            results.put(obj.getString(ResponseKey.resultsNameKey),
-                    obj.getDouble(ResponseKey.resultsScoreKey));
+            results.put(obj.getString(ResponseKey.RESULTS_NAME_KEY),
+                    obj.getDouble(ResponseKey.RESULTS_SCORE_KEY));
 
         }
-        return new ImageResponse(response, results);
+        return new ImageResponse(response, region, results);
     }
 
     public Map getResults() {

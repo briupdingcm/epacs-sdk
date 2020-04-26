@@ -1,7 +1,7 @@
 package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.common.Position;
+import com.epacs.sdk.common.Region;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -16,14 +16,14 @@ import java.net.URI;
 
 public class Request {
     private String image;
-    private Position position;
+    private Region region;
 
     public Request() {
     }
 
-    public Request(String image, Position position) {
+    public Request(String image, Region region) {
         this.image = image;
-        this.position = position;
+        this.region = region;
 
     }
 
@@ -37,8 +37,6 @@ public class Request {
         get.addHeader("Authorization", "Bearer " + token);
         get.addHeader("Content-type", "application/json");
         get.addHeader("Accept", "*/*");
-        HttpResponse s = client.execute(get);
-
         HttpEntity entity = client.execute(get).getEntity();
         return EntityUtils.toString(entity);
     }
@@ -51,7 +49,7 @@ public class Request {
         post.addHeader("Accept", "*/*");
         JSONObject param = new JSONObject();
         param.put("image",image);
-        if(position != null)param.put("position", position.name());
+        if(region != null)param.put("position", region.name());
         StringEntity se = new StringEntity(param.toString(), "UTF-8");
         post.setEntity(se);
         HttpResponse response = client.execute(post);
@@ -67,11 +65,11 @@ public class Request {
         this.image = image;
     }
 
-    public Position getPosition() {
-        return position;
+    public Region getRegion() {
+        return region;
     }
 
-    public void setPosition(Position position) {
-        this.position = position;
+    public void setRegion(Region region) {
+        this.region = region;
     }
 }

@@ -22,9 +22,9 @@ public class Response {
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
 
         // 获得响应码
-        int errorCode = jsonObj.getIntValue(ResponseKey.errorCodeKey);
-        String errorMsg = jsonObj.getString(ResponseKey.errorMsgKey);
-        int logId = jsonObj.getIntValue(ResponseKey.logIdKey);
+        int errorCode = jsonObj.getIntValue(ResponseKey.ERROR_CODE_KEY);
+        String errorMsg = jsonObj.getString(ResponseKey.ERROR_MSG_KEY);
+        int logId = jsonObj.getIntValue(ResponseKey.LOG_ID_KEY);
 
         if (errorCode == ErrorCode.SUCCESS.getErrorCode() ||
                 errorCode == ErrorCode.ACCEPT.getErrorCode()) {

@@ -24,10 +24,10 @@ public class TaskResponse {
     public static TaskResponse parse(String jsonStr) throws RequestException, InternalException {
         Response response = Response.parse(jsonStr);
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        int taskId = jsonObj.getInteger(ResponseKey.taskIdKey);
-        String createdBy = jsonObj.getString(ResponseKey.createdByKey);
-        TaskStatus status = TaskStatus.fromString(jsonObj.getString(ResponseKey.statusKey));
-        String imageId =jsonObj.getString(ResponseKey.imageIdKey);
+        int taskId = jsonObj.getInteger(ResponseKey.TASK_ID_KEY);
+        String createdBy = jsonObj.getString(ResponseKey.CREATED_BY_KEY);
+        TaskStatus status = TaskStatus.fromString(jsonObj.getString(ResponseKey.STATUS_KEY));
+        String imageId =jsonObj.getString(ResponseKey.IMAGE_ID_KEY);
         return new TaskResponse(response, taskId, createdBy, status, imageId);
     }
 

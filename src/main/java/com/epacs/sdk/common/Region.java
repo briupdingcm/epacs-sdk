@@ -3,7 +3,7 @@ package com.epacs.sdk.common;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum Position {
+public enum Region {
     NOZZLE,
     AIRINELET,
     CLINDER,
@@ -11,16 +11,16 @@ public enum Position {
     INLETVALVE;
 
     // Implementing a fromString method on an enum type
-    private static final Map<String, Position> stringToEnum = new HashMap<String, Position>();
+    private static final Map<String, Region> stringToEnum = new HashMap<String, Region>();
     static {
         // Initialize map from constant name to enum constant
-        for(Position blah : values()) {
+        for(Region blah : values()) {
             stringToEnum.put(blah.toString(), blah);
         }
     }
 
     // Returns Blah for string, or null if string is invalid
-    public static Position fromString(String symbol) {
+    public static Region fromString(String symbol) {
         return stringToEnum.get(symbol);
     }
 

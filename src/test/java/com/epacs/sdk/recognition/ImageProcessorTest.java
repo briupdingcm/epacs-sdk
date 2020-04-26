@@ -80,7 +80,7 @@ public class ImageProcessorTest {
     }
 
     @Test
-    public void createTask() throws IOException, InternalException, ResponseException, InterruptedException {
+    public void createTask() throws IOException, InternalException, InterruptedException {
         String image = "";
 
         ImageProcessor ip = new ImageProcessor(token, conf);
@@ -88,7 +88,7 @@ public class ImageProcessorTest {
         TaskResponse taskResponse = null;
         try {
             taskResponse = ip.createTask(image);
-        } catch (RequestException | ImageFormatException e) {
+        } catch (RequestException e) {
             fail(e.getMessage());
         }
         assertNotNull(taskResponse);
@@ -99,10 +99,7 @@ public class ImageProcessorTest {
 
     @Test
     public void getTaskInfo() throws InterruptedException {
-
         ImageProcessor ip = new ImageProcessor(token, conf);
-
-        String image = "";
         TaskResponse taskResponse = null;
         try {
             taskResponse = ip.getTaskInfo(22);
@@ -135,13 +132,13 @@ public class ImageProcessorTest {
     public void getResult(){
         ImageProcessor ip = new ImageProcessor(token, conf);
 
-        Map<String, Double > results = null;
+        ImageResponse results = null;
         try {
             results = ip.getResult(22);
         } catch (RequestException | InternalException | IOException e) {
             fail(e.getMessage());
         }
-        assertEquals(2, results.size());
+        assertEquals(2, results.getResults().size());
     }
 
 
@@ -150,13 +147,13 @@ public class ImageProcessorTest {
         ImageProcessor ip = new ImageProcessor(token, conf);
 
         String image = "";
-        Map<String, Double > results = null;
+        ImageResponse results = null;
         try {
             results = ip.submit(image);
-        } catch (RequestException | InternalException | IOException | ImageFormatException e) {
+        } catch (RequestException | InternalException | IOException  e) {
             fail(e.getMessage());
         }
-        assertEquals(2, results.size());
+        assertEquals(2, results.getResults().size());
     }
 
     @Test
@@ -167,11 +164,11 @@ public class ImageProcessorTest {
         try {
             ip.submit(image, new ResultCallback() {
                 @Override
-                public void callback(int logId, int errorCode, String errorMsg, Map<String, Double> results) {
-                    assertEquals(2, results.size());
+                public void callback(ImageResponse imageResponse) {
+                    assertEquals(2, imageResponse.getResults().size());
                 }
             });
-        } catch (RequestException | InternalException | IOException | ImageFormatException e) {
+        } catch (RequestException | InternalException | IOException  e) {
             fail(e.getMessage());
         }
     }

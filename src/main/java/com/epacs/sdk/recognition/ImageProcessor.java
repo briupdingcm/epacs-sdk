@@ -22,58 +22,61 @@ import java.util.concurrent.Executors;
  *
  * @create: 2020.04.13 18:24
  * @author: Kevin
- * @description: . 图像处理器
+ * @description: . 图像处理器。创建图像处理任务，查询任务状态，获得处理结果
  */
 public class ImageProcessor {
     private static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     // 用户身份信息
     private String token;
-    private JSONObject param;
     private Configuration conf;
-
     // 线程池对象
     private ExecutorService threadsPool;
 
+    /**
+     * 创建图像处理器
+     * @param token 客户端的认证信息
+     * @param conf 配置信息
+     */
     public ImageProcessor(String token, Configuration conf) {
         this.conf = conf;
         this.token = token;
-        this.param = new JSONObject();
         this.threadsPool = Executors.newCachedThreadPool();
     }
 
     /**
-     * 检测一个字符串是否是合理的图像编码
-     * @param imageStr
-     *          编码后以字符串形式表示的图像
-     * @throws ImageFormatException
+     * 创建图像识别任务
+     * @param image base64编码后以字符串形式表示的图像
+     * @return 返回新建任务的状态
+     * @throws IOException 无法和服务器端连接
+     * @throws InternalException 服务器内部出错
+     * @throws RequestException 发送的请求出现错误
      */
-    private void checkImage(String imageStr) throws ImageFormatException, UnsupportedEncodingException {
-        //请提供实现过程
-        final Base64 base64 = new Base64();
-        byte[] image = base64.decode(imageStr);
-    }
-
-
-
-    public TaskResponse createTask(String image) throws IOException, InternalException, RequestException, ImageFormatException {
-        checkImage(image);
+    public TaskResponse createTask(String image) throws IOException, InternalException, RequestException {
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
-
+        // 请求对象
         Request request = new Request(image);
-
+        // 向任务提交点发送请求
         String resp = request.doPost(taskUrl, this.token);
-        // 发送POST请求，提交任务参数图像
-
+        // 返回新建任务的信息
         return  TaskResponse.parse(resp);
     }
 
-    public TaskResponse createTask(String image, Position position) throws IOException, InternalException, RequestException {
+    /**
+     * 创建图像识别任务
+     * @param image base64编码后以字符串形式表的图像
+     * @param region image对应的发动机部位
+     * @return 返回新建任务的状态
+     * @throws IOException 无法和服务器端连接
+     * @throws InternalException 服务器内部出错
+     * @throws RequestException 发送的请求出现错误
+     */
+    public TaskResponse createTask(String image, Region region) throws IOException, InternalException, RequestException {
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
 
-        Request request = new Request(image, position);
+        Request request = new Request(image, region);
 
         String resp = request.doPost(taskUrl, this.token);
         // 发送POST请求，提交任务参数图像
@@ -81,6 +84,14 @@ public class ImageProcessor {
         return  TaskResponse.parse(resp);
     }
 
+    /**
+     * 查询图像处理任务的相关信息
+     * @param taskId 任务编号，创建任务时由服务端返回
+     * @return 任务的当前信息
+     * @throws IOException 访问服务器出错
+     * @throws InternalException 服务器内部出错
+     * @throws RequestException 发送的请求参数不合法
+     */
     public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, RequestException {
         URI taskUrl = conf.getTasksPoint();
         // 任务状态查询点
@@ -88,27 +99,29 @@ public class ImageProcessor {
         // 查询任务状态
         Request request = new Request();
         String resp = request.doGet(taskStatusUrl, this.token);
-        //String resp = HttpUtils.get(taskStatusUrl, this.token);
+        // 返回当前任务信息
         return  TaskResponse.parse(resp);
     }
 
     /**
-     *
-     * @param imageId 图像的id
+     *  获取图像处理结果
+     * @param imageId 图像的id，创建图像处理任务时服务端分配的唯一标识
      * @return 图像信息（json格式）
-     * @throws URISyntaxException
-     * @throws IOException
+     * @throws IOException 访问服务器出错
+     * @throws InternalException 服务器内部出错
+     * @throws RequestException 发送的请求参数不合法
      */
     public ImageResponse getImageInfo(String imageId) throws IOException, RequestException, InternalException {
         logger.debug("getImageInfo " + imageId);
+        // 图像资源访问点
         URI imageUrl = conf.getImagesPoint();
-
+        // 图像信息获取点
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId + "?query=result");
-
+        // 请求
         Request request = new Request();
-
+        // 提交请求，获得响应
         String resp = request.doGet(imageStatusUrl, this.token);
-        //String resp = HttpUtils.get(imageStatusUrl, this.token);
+        // 返回图像处理结果
         return  ImageResponse.parse(resp);
     }
 
@@ -116,10 +129,12 @@ public class ImageProcessor {
      * 获得图像识别任务结束后的结果
      * @param taskId 任务编号
      * @return 图像污染程度的置信度
-     * @throws IOException
+     * @throws IOException 访问服务器出错
+     * @throws InternalException 服务器内部出错
+     * @throws RequestException 发送的请求参数不合法
      *
      */
-    public Map<String, Double> getResult(Integer taskId) throws IOException, InternalException, RequestException {
+    public ImageResponse getResult(Integer taskId) throws IOException, InternalException, RequestException {
         // 获得任务信息
         TaskResponse taskResponse = getTaskInfo(taskId);
         // 取出任务状态
@@ -136,55 +151,71 @@ public class ImageProcessor {
         }else if(TaskStatus.SUCCESS.equals(taskStatus)) { //任务成功结束
             String imageId = taskResponse.getImageId();
             ImageResponse imageResponse = getImageInfo(imageId);
-            return imageResponse.getResults();
+            return imageResponse;
         }else {
             throw new TaskException("illegal status: " + taskStatus);
         }
     }
 
-    public Map<String, Double> submit(final String image) throws ImageFormatException, IOException, InternalException, RequestException {
-        checkImage(image);
+    /**
+     * 同步提交图像，获得该图像识别结果
+     * @param image base64编码以字符串形式表示的图像
+     * @return 该图像污染程度置信度
+     * @throws ImageFormatException
+     * @throws IOException
+     * @throws InternalException
+     * @throws RequestException
+     */
+    public ImageResponse submit(final String image) throws IOException, InternalException, RequestException {
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
         // 获得任务编号
         Integer taskId = taskResponse.getTaskId();
+        // 图像处理结果
         return getResult(taskId);
 
     }
-
-    public Map<String, Double> submit(final String image, Position position) throws ImageFormatException, IOException, InternalException, RequestException {
-        checkImage(image);
-        // 发送请求创建任务
-        TaskResponse taskResponse = createTask(image, position);
-        // 获得任务编号
-        Integer taskId = taskResponse.getTaskId();
-        return getResult(taskId);
-
-    }
-
-
 
     /**
-     * 发送请求创建任务，方法内部进行异步查询任务执行结果
-     *
-     * @param callback
-     *     回调接口对象
+     * 同步提交图像，获得该图像识别结果
+     * @param image base64编码以字符串形式表示的图像
+     * @parsm region 发动机部位
+     * @return 该图像污染程度置信度
+     * @throws ImageFormatException
+     * @throws IOException
+     * @throws InternalException
+     * @throws RequestException
      */
-    public void submit(final String image, final ResultCallback callback) throws ImageFormatException, IOException, TaskException, InternalException, RequestException {
-        checkImage(image);
+    public ImageResponse submit(final String image, Region region) throws IOException, InternalException, RequestException {
+        // 发送请求创建任务
+        TaskResponse taskResponse = createTask(image, region);
+        // 获得任务编号
+        Integer taskId = taskResponse.getTaskId();
+        return getResult(taskId);
+
+    }
+
+    /**
+     * 提交图像， 异步方式获得识别结果
+     * @param image base64编码的字符串图像
+     * @param callback 服务端返回识别结果后的回调函数
+     * @throws IOException
+     * @throws TaskException
+     * @throws InternalException
+     * @throws RequestException
+     */
+    public void submit(final String image, final ResultCallback callback) throws IOException, TaskException, InternalException, RequestException {
         // 发送请求创建任务
         TaskResponse taskResponse = createTask(image);
-
         // 获得任务编号
         int taskId = taskResponse.getTaskId();
-
         long  time = conf.getWaitTime();
 
         // region ------------------------局部内部类------------------------
         // 局部内部类，线程类，封装用于查询识别结果
         class RecognitionThread implements Runnable{
-            private  long waitTime;
-            private  int taskId;
+            public final long waitTime;
+            public final int taskId;
 
             public RecognitionThread(int taskId, long waitTime) {
                 this.taskId = taskId;
@@ -207,21 +238,19 @@ public class ImageProcessor {
                             taskResponse = getTaskInfo(taskId);
                             taskStatus = taskResponse.getStatus();
                         }
-
-                        int errorCode = taskResponse.getErrorCode();
-                        String errorMsg = taskResponse.getErrorMsg();
+                        // 图像ID
                         String imageId = taskResponse.getImageId();
+                        // 图像的识别结果
                         ImageResponse imageResponse = getImageInfo(imageId);
-
-                        callback.callback(0, errorCode, errorMsg, imageResponse.getResults());
+                        // 回调任务的错误码和图像识别结果
+                        callback.callback(imageResponse);
 
                     }catch(InterruptedException | IOException e){
-                        logger.error("Thread exception");
-                        e.printStackTrace();
+                        logger.error("Thread exception：" + e.getMessage());
                     } catch (InternalException e) {
-                        e.printStackTrace();
+                        logger.error("server error: " + e.getMessage());
                     } catch (RequestException e) {
-                        e.printStackTrace();
+                        logger.error("request error: " + e.getMessage());
                     }
                 }
             }
