@@ -72,12 +72,10 @@ public class ImageProcessorTest {
         server.setDispatcher(dispatcher);
         //server.url("/product");
         server.start();
-
         conf = new PropertiesConfiguration();
         conf.setAppPoint("http://" + server.getHostName() + ":" + server.getPort());
         conf.setTasksPoint("/api/tasks");
         conf.setImagesPoint("/api/images");
-
     }
 
     @After

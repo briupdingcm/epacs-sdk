@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
  * @description: . 图像处理器。创建图像处理任务，查询任务状态，获得处理结果
  */
 public class ImageProcessor {
-    private static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+    private static Logger logger= LogManager.getLogger(ImageProcessor.class);
 
     // 用户身份信息
     private String token;
@@ -48,6 +48,7 @@ public class ImageProcessor {
      * @throws RequestException 发送的请求出现错误
      */
     public TaskResponse createTask(String image) throws IOException, InternalException, RequestException {
+        logger.debug("createTask: image_size(" + image.length() + ")");
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
         // 请求对象
@@ -68,6 +69,7 @@ public class ImageProcessor {
      * @throws RequestException 发送的请求出现错误
      */
     public TaskResponse createTask(String image, Region region) throws IOException, InternalException, RequestException {
+        logger.debug("createTask: image_size(" + image.length() + "), region(" + region + ")");
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
 
@@ -87,7 +89,8 @@ public class ImageProcessor {
      * @throws InternalException 服务器内部出错
      * @throws RequestException 发送的请求参数不合法
      */
-    public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, RequestException {
+    public TaskResponse getTaskInfo(int taskId) throws IOException, InternalException, RequestException {
+        logger.debug("getTaskInfo: taskId(" + taskId +")");
         URI taskUrl = conf.getTasksPoint();
         // 任务状态查询点
         URI taskStatusUrl = URI.create(taskUrl + "/" + taskId);
@@ -107,7 +110,7 @@ public class ImageProcessor {
      * @throws RequestException 发送的请求参数不合法
      */
     public ImageResponse getImageInfo(String imageId) throws IOException, RequestException, InternalException {
-        logger.debug("getImageInfo " + imageId);
+        logger.debug("getImageInfo: image_id(" + imageId + ")");
         // 图像资源访问点
         URI imageUrl = conf.getImagesPoint();
         // 图像信息获取点
