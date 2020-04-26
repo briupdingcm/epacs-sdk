@@ -2,6 +2,7 @@ package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
 import com.epacs.sdk.common.Region;
+import com.epacs.sdk.common.RequestException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,17 +32,21 @@ public class Request {
         this(image, null);
     }
 
-    public String doGet(URI point, String token) throws IOException {
+    public String doGet(URI point, String token) throws IOException, RequestException {
         HttpClient client = HttpClients.createDefault();
         HttpGet get = new HttpGet(point);
         get.addHeader("Authorization", "Bearer " + token);
         get.addHeader("Content-type", "application/json");
         get.addHeader("Accept", "*/*");
-        HttpEntity entity = client.execute(get).getEntity();
+        HttpResponse response = client.execute(get);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if(statusCode != 200 && statusCode != 201)
+            throw new RequestException(statusCode, response.getStatusLine().toString());
+        HttpEntity entity = response.getEntity();
         return EntityUtils.toString(entity);
     }
 
-    public String doPost(URI point, String token) throws IOException {
+    public String doPost(URI point, String token) throws IOException, RequestException {
         HttpClient client = HttpClients.createDefault();
         HttpPost post = new HttpPost(point);
         post.addHeader("Authorization", "Bearer " + token);
@@ -53,6 +58,9 @@ public class Request {
         StringEntity se = new StringEntity(param.toString(), "UTF-8");
         post.setEntity(se);
         HttpResponse response = client.execute(post);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if((statusCode != 200) && (statusCode != 201))
+            throw new RequestException(statusCode, response.getStatusLine().toString());
         HttpEntity entity = response.getEntity();
         return EntityUtils.toString(entity);
 

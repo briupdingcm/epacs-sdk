@@ -1,20 +1,15 @@
 package com.epacs.sdk.recognition;
 
-import com.alibaba.fastjson.JSONObject;
 import com.epacs.sdk.common.*;
 import com.epacs.sdk.conf.Configuration;
-import com.epacs.sdk.model.Request;
 import com.epacs.sdk.model.ImageResponse;
+import com.epacs.sdk.model.Request;
 import com.epacs.sdk.model.TaskResponse;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -211,7 +206,6 @@ public class ImageProcessor {
         int taskId = taskResponse.getTaskId();
         long  time = conf.getWaitTime();
 
-        // region ------------------------局部内部类------------------------
         // 局部内部类，线程类，封装用于查询识别结果
         class RecognitionThread implements Runnable{
             public final long waitTime;
@@ -255,7 +249,6 @@ public class ImageProcessor {
                 }
             }
         }
-        // endregion
 
         // 判断任务是否已交成功，如果任务提交成功，则启动新的线程查询任务的执行结果
         if(taskResponse.getErrorCode() == ErrorCode.SUCCESS.getErrorCode()){

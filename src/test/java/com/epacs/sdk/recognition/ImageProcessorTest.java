@@ -15,6 +15,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,7 +75,7 @@ public class ImageProcessorTest {
 
     }
 
-    @Test
+    @After
     public void stop() throws IOException {
         server.shutdown();
     }
