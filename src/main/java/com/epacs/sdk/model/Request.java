@@ -24,10 +24,11 @@ public class Request {
     public Request(String image, Position position) {
         this.image = image;
         this.position = position;
+
     }
 
     public Request(String image) {
-        this.image = image;
+        this(image, null);
     }
 
     public String doGet(URI point, String token) throws IOException {

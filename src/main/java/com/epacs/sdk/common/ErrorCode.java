@@ -1,8 +1,8 @@
 package com.epacs.sdk.common;
 
 /**
- * @program: jieyi-product-0
- * @package: com.briup.jieyi.epacs.common
+ * @program: epacs-sdk
+ * @package: com.epacs.sdk.common
  * @filename: ErrorCode.java
  * @create: 2020.04.13 18:24
  * @author: Kevin
@@ -18,14 +18,14 @@ public enum ErrorCode{
     LARGE_REQUEST(413),
     INTREVAL_ERROR(500);
     // ---------------------------------------------------
-    private Integer errorCode;
+    private int errorCode;
 
-    ErrorCode(Integer errorCode){
+    ErrorCode(int errorCode){
         this.errorCode=errorCode;
     }
 
     public int getErrorCode(){
-        return errorCode.intValue();
+        return errorCode;
     }
 
     public void setErrorCode(Integer errorCode){

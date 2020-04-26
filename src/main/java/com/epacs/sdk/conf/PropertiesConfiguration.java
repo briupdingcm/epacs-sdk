@@ -9,64 +9,52 @@ public class PropertiesConfiguration implements Configuration {
     private static final String TASK_POINT_KEY = "task_url";
     private static final String IMAGE_POINT_KEY = "image_url";
     private static final String TIME_KEY = "delay_ms";
-
-    private URI appPoint;
-    private URI tasksPoint;
-    private URI imagesPoint;
+    //应用系统顶级访问点
+    private String appPoint;
+    //任务资源访问点
+    private String tasksPoint;
+    //图像资源访问点
+    private String imagesPoint;
+    //轮询时间间隔
     private long waitTime;
 
     public PropertiesConfiguration() {
     }
 
     public PropertiesConfiguration(Properties props) throws IOException {
-        appPoint = URI.create(props.getProperty(APP_POINT_KEY));
-        tasksPoint = URI.create(props.getProperty(TASK_POINT_KEY));
-        imagesPoint = URI.create(props.getProperty(IMAGE_POINT_KEY));
+        appPoint = props.getProperty(APP_POINT_KEY);
+        tasksPoint = props.getProperty(TASK_POINT_KEY);
+        imagesPoint = props.getProperty(IMAGE_POINT_KEY);
         waitTime = Long.parseLong(props.getProperty(TIME_KEY));
     }
     @Override
     public URI getAppPoint() {
-        return appPoint;
+        return URI.create(appPoint);
     }
 
     @Override
     public void setAppPoint(String appPoint) {
-        setAppPoint(URI.create(appPoint));
-    }
-
-    @Override
-    public void setAppPoint(URI appPoint) {
         this.appPoint = appPoint;
     }
 
     @Override
     public URI getTasksPoint() {
-        return tasksPoint;
-    }
-
-    @Override
-    public void setTasksPoint(URI tasksPoint) {
-        this.tasksPoint = tasksPoint;
+        return URI.create(appPoint + tasksPoint);
     }
 
     @Override
     public void setTasksPoint(String tasksPointStr) {
-        tasksPoint = URI.create(tasksPointStr);
+        this.tasksPoint = tasksPointStr;
     }
 
     @Override
-    public void setImagesPoint(String s) {
-        imagesPoint = URI.create(s);
-    }
-
-    @Override
-    public void setImagesPoint(URI imagesPoint) {
+    public void setImagesPoint(String imagesPoint) {
         this.imagesPoint = imagesPoint;
     }
 
     @Override
     public URI getImagesPoint() {
-        return this.imagesPoint;
+        return URI.create(this.appPoint + this.imagesPoint);
     }
 
     @Override

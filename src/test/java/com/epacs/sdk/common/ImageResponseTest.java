@@ -14,7 +14,7 @@ public class ImageResponseTest{
     ImageResponse ir;
 
     @Before
-    public void createImageResponse() throws ResponseException {
+    public void start() throws ResponseException {
         try {
             ir =  ImageResponse.parse(jsonStr);
             assertNotNull(ir);
@@ -29,22 +29,22 @@ public class ImageResponseTest{
     }
 
     @Test
-    public void testImageResponse() throws ResponseException {
+    public void parse() throws ResponseException {
         try {
             ir = ImageResponse.parse(jsonStr);
+            assertNotNull(ir);
         } catch (RequestException | InternalException e) {
-            fail("");
+            fail(e.getMessage());
         }
-        assertNotNull(ir);
     }
 
     @Test
-    public void testGetResultsNotNull(){
+    public void getResultsNotNull(){
         assertNotNull(ir.getResults());
     }
 
     @Test
-    public void testGetResults(){
+    public void getResults(){
         assertEquals(2, ir.getResults().size());
     }
 }

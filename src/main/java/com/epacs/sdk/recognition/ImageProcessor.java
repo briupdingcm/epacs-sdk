@@ -6,8 +6,12 @@ import com.epacs.sdk.conf.Configuration;
 import com.epacs.sdk.model.Request;
 import com.epacs.sdk.model.ImageResponse;
 import com.epacs.sdk.model.TaskResponse;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -21,6 +25,7 @@ import java.util.concurrent.Executors;
  * @description: . 图像处理器
  */
 public class ImageProcessor {
+    private static Logger logger= LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
 
     // 用户身份信息
     private String token;
@@ -43,13 +48,16 @@ public class ImageProcessor {
      *          编码后以字符串形式表示的图像
      * @throws ImageFormatException
      */
-    private void checkImage(String imageStr)throws ImageFormatException{
+    private void checkImage(String imageStr) throws ImageFormatException, UnsupportedEncodingException {
         //请提供实现过程
+        final Base64 base64 = new Base64();
+        byte[] image = base64.decode(imageStr);
     }
 
 
 
-    public TaskResponse createTask(String image) throws IOException, InternalException, RequestException {
+    public TaskResponse createTask(String image) throws IOException, InternalException, RequestException, ImageFormatException {
+        checkImage(image);
         // 获取任务提交点
         URI taskUrl = conf.getTasksPoint();
 
@@ -57,12 +65,21 @@ public class ImageProcessor {
 
         String resp = request.doPost(taskUrl, this.token);
         // 发送POST请求，提交任务参数图像
-//        param.put("image",image);
-//        String resp = HttpUtils.post(taskUrl, token, param);
-        //checkResponse(resp);
+
         return  TaskResponse.parse(resp);
     }
 
+    public TaskResponse createTask(String image, Position position) throws IOException, InternalException, RequestException {
+        // 获取任务提交点
+        URI taskUrl = conf.getTasksPoint();
+
+        Request request = new Request(image, position);
+
+        String resp = request.doPost(taskUrl, this.token);
+        // 发送POST请求，提交任务参数图像
+
+        return  TaskResponse.parse(resp);
+    }
 
     public TaskResponse getTaskInfo(Integer taskId) throws IOException, InternalException, RequestException {
         URI taskUrl = conf.getTasksPoint();
@@ -83,6 +100,7 @@ public class ImageProcessor {
      * @throws IOException
      */
     public ImageResponse getImageInfo(String imageId) throws IOException, RequestException, InternalException {
+        logger.debug("getImageInfo " + imageId);
         URI imageUrl = conf.getImagesPoint();
 
         URI imageStatusUrl = URI.create(imageUrl + "/" + imageId + "?query=result");
@@ -134,6 +152,15 @@ public class ImageProcessor {
 
     }
 
+    public Map<String, Double> submit(final String image, Position position) throws ImageFormatException, IOException, InternalException, RequestException {
+        checkImage(image);
+        // 发送请求创建任务
+        TaskResponse taskResponse = createTask(image, position);
+        // 获得任务编号
+        Integer taskId = taskResponse.getTaskId();
+        return getResult(taskId);
+
+    }
 
 
 
@@ -189,6 +216,7 @@ public class ImageProcessor {
                         callback.callback(0, errorCode, errorMsg, imageResponse.getResults());
 
                     }catch(InterruptedException | IOException e){
+                        logger.error("Thread exception");
                         e.printStackTrace();
                     } catch (InternalException e) {
                         e.printStackTrace();

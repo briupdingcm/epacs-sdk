@@ -13,11 +13,15 @@ import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -25,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ImageProcessorTest {
-
+    Configuration conf;
     String token = "";
     MockWebServer server;
     @Before
@@ -62,6 +66,12 @@ public class ImageProcessorTest {
         server = new MockWebServer();
         server.setDispatcher(dispatcher);
         server.start();
+
+        conf = new PropertiesConfiguration();
+        conf.setAppPoint("http://" + server.getHostName() + ":" + server.getPort());
+        conf.setTasksPoint("/api/tasks");
+        conf.setImagesPoint("/api/images");
+
     }
 
     @Test
@@ -71,15 +81,14 @@ public class ImageProcessorTest {
 
     @Test
     public void createTask() throws IOException, InternalException, ResponseException, InterruptedException {
-        Configuration conf = new PropertiesConfiguration();
-        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
+        String image = "";
+
         ImageProcessor ip = new ImageProcessor(token, conf);
 
-        String image = "";
         TaskResponse taskResponse = null;
         try {
             taskResponse = ip.createTask(image);
-        } catch (RequestException e) {
+        } catch (RequestException | ImageFormatException e) {
             fail(e.getMessage());
         }
         assertNotNull(taskResponse);
@@ -90,8 +99,7 @@ public class ImageProcessorTest {
 
     @Test
     public void getTaskInfo() throws InterruptedException {
-        Configuration conf = new PropertiesConfiguration();
-        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
+
         ImageProcessor ip = new ImageProcessor(token, conf);
 
         String image = "";
@@ -109,12 +117,8 @@ public class ImageProcessorTest {
 
     @Test
     public void getImageInfo() throws InterruptedException {
-        Configuration conf = new PropertiesConfiguration();
-        //conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
-        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
-        String image = "";
         ImageResponse imageResponse = null;
         try {
             imageResponse = ip.getImageInfo("2222");
@@ -129,13 +133,8 @@ public class ImageProcessorTest {
 
     @Test
     public void getResult(){
-        Configuration conf = new PropertiesConfiguration();
-        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
-        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
-
-        String image = "";
         Map<String, Double > results = null;
         try {
             results = ip.getResult(22);
@@ -148,11 +147,7 @@ public class ImageProcessorTest {
 
     @Test
     public void submit(){
-        Configuration conf = new PropertiesConfiguration();
-        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
-        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
-
 
         String image = "";
         Map<String, Double > results = null;
@@ -166,9 +161,6 @@ public class ImageProcessorTest {
 
     @Test
     public void submitAsync(){
-        Configuration conf = new PropertiesConfiguration();
-        conf.setTasksPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/tasks");
-        conf.setImagesPoint("http://" + server.getHostName() + ":" + server.getPort() + "/api/images");
         ImageProcessor ip = new ImageProcessor(token, conf);
 
         String image = "";

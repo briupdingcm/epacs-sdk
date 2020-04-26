@@ -3,6 +3,7 @@ package com.epacs.sdk.conf;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PropertiesConfigurationTest{
     InputStream is;
     Configuration conf;
-    @Before
+
     @BeforeEach
     public void start() throws Exception {
         is = PropertiesConfigurationTest.class.getResourceAsStream("/epacs.properties");
@@ -25,62 +26,37 @@ public class PropertiesConfigurationTest{
         conf  = new PropertiesConfiguration(properties);
     }
 
-    @After
+    @AfterEach
     public void stop() throws Exception {
         if (is != null)is.close();
     }
 
 
     @Test
-    public void testGetAppPoint() {
-        URI appPoint = URI.create("/api");
-        conf.setAppPoint("/api");
+    public void getAppPoint() {
+        URI appPoint = URI.create("http://localhost/product");
+        Configuration conf = new PropertiesConfiguration();
+        conf.setAppPoint("http://localhost/product");
         assertEquals(appPoint, conf.getAppPoint());
     }
 
     @Test
-    public void testGetAppPointNotSame() {
-        URI appPoint = URI.create("");
-        assertNotSame(appPoint, conf.getAppPoint());
-    }
-
-    @Test
-    public void testGetAppPointNotNull(){
-        assertNotNull(conf.getAppPoint());
-    }
-
-    @Test
-    public void testGetTasksPoint() {
-        URI tasksPoint = URI.create("/api/tasks");
+    public void getTasksPoint() {
+        Configuration conf = new PropertiesConfiguration();
+        conf.setAppPoint("http://localhost/product");
+        conf.setTasksPoint("/api/tasks");
+        URI tasksPoint = URI.create("http://localhost/product/api/tasks");
         assertEquals(tasksPoint, conf.getTasksPoint());
     }
 
     @Test
-    public void testGetTasksPointNotNull() {
-        assertNotNull(conf.getTasksPoint());
-    }
-
-    @Test
-    public void testGetTasksPointNotSame() {
-        URI tasksPoint = URI.create("");
-        assertNotSame(tasksPoint, conf.getTasksPoint());
-    }
-
-    @Test
-    public void testGetImagesPoint() {
-        URI imagesPoint = URI.create("/api/images");
+    public void getImagesPoint() {
+        Configuration conf = new PropertiesConfiguration();
+        conf.setAppPoint("http://localhost/product");
         conf.setImagesPoint("/api/images");
+        URI imagesPoint = URI.create("http://localhost/product/api/images");
         assertEquals(imagesPoint, conf.getImagesPoint());
     }
 
-    @Test
-    public void testGetImagesPointNotNull() {
-        assertNotNull(conf.getImagesPoint());
-    }
 
-    @Test
-    public void testGetImagesPointNotSame() {
-        URI imagesPoint = URI.create("");
-        assertNotSame(imagesPoint, conf.getImagesPoint());
-    }
 }

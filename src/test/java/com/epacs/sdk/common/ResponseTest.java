@@ -12,7 +12,6 @@ public class ResponseTest{
     String errJsonStr = "{\"log_id\":\"\", \"error_code\":\"200\", \"error_msg\":\"hello\"}";
 
     Response response;
-    Response errResponse;
 
 
     @Test
@@ -35,7 +34,7 @@ public class ResponseTest{
 
 
     @Test
-    public void testGetLogId(){
+    public void getLogId(){
         try {
             response = parse(jsonStr);
         } catch (InternalException e) {
@@ -49,7 +48,7 @@ public class ResponseTest{
 
 
     @Test
-    public void testGetErrorCode(){
+    public void getErrorCode(){
         try {
             response = Response.parse(jsonStr);
         } catch (InternalException e) {
@@ -61,7 +60,7 @@ public class ResponseTest{
     }
 
     @Test
-    public void testGetErrorMsg(){
+    public void getErrorMsg(){
         try {
             response = Response.parse(jsonStr);
         } catch (InternalException e) {

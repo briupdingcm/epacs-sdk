@@ -6,6 +6,7 @@ public class TaskException extends RuntimeException {
     public TaskException(String errorMsg) {
         super(errorMsg);
     }
+
     public TaskException(Integer errorCode, String errorMsg) {
         super(errorMsg);
         this.errorCode = errorCode;

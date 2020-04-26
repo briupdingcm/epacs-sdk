@@ -2,6 +2,14 @@ package com.epacs.sdk.common;
 
 import java.security.PrivilegedActionException;
 
+/**
+ * @program: epacs-sdk
+ * @package: com.epacs.sdk.common
+ * @filename: ImageFormat.java
+ * @create: 2020.04.13 18:24
+ * @author: Kevin
+ * @description:  图像格式错误异常
+ **/
 public class ImageFormatException extends Exception{
     /**
      * Constructs a new exception with {@code null} as its detail message.
