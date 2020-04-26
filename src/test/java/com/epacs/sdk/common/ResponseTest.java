@@ -63,11 +63,11 @@ public class ResponseTest{
     public void getErrorMsg(){
         try {
             response = Response.parse(jsonStr);
-        } catch (InternalException e) {
-            e.printStackTrace();
-        } catch (RequestException e) {
-            e.printStackTrace();
+        } catch (InternalException | RequestException e) {
+            fail(e);
         }
         assertEquals("hello", response.getErrorMsg());
     }
+
+
 }

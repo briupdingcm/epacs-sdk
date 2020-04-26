@@ -15,16 +15,24 @@ public class ImageResponseTest{
             "{\"name\":\"hsd4zhongdu\",\"score\":\"0.1\"}, " +
             "{\"name\":\"hsd5yanzhong\",\"score\":\"0.1\"}, " +
             "]}";
+    String errJsonStr = "{\"log_id\":\"1\", \"{error_code\":\"200\", \"error_msg\":\"hello\", \"region\":\"NOZZLE\", " +
+            "\"results\":[{\"name\":\"hsd1qingwei\",\"score\":\"0.1\"}, " +
+            "{\"name\":\"hsd2qingdu\",\"score\":\"0.5\"}, " +
+            "{\"name\":\"hsd3zhongdu\",\"score\":\"0.2\"}, " +
+            "{\"name\":\"hsd4zhongdu\",\"score\":\"0.1\"}, " +
+            "{\"name\":\"hsd5yanzhong\",\"score\":\"0.1\"}, " +
+            "]}";
+
     int resultCount = 5;
     ImageResponse ir;
 
     @Before
-    public void start() throws ResponseException {
+    public void start() {
         try {
             ir =  ImageResponse.parse(jsonStr);
             assertNotNull(ir);
         } catch (RequestException | InternalException e) {
-            fail("");
+            fail(e);
         }
     }
 
@@ -34,13 +42,19 @@ public class ImageResponseTest{
     }
 
     @Test
-    public void parse() throws ResponseException {
+    public void parse() {
         try {
             ir = ImageResponse.parse(jsonStr);
             assertNotNull(ir);
         } catch (RequestException | InternalException e) {
-            fail(e.getMessage());
+            fail(e);
         }
+    }
+
+    @Test(expected = InternalException.class)
+    public void parseReqEx() throws InternalException, RequestException {
+        ir = ImageResponse.parse(errJsonStr);
+        assertNull(ir);
     }
 
     @Test
@@ -51,5 +65,10 @@ public class ImageResponseTest{
     @Test
     public void getResults(){
         assertEquals(resultCount, ir.getResults().size());
+    }
+
+    @Test
+    public void getRegion(){
+        assertEquals(Region.NOZZLE, ir.getRegion());
     }
 }

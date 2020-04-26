@@ -21,27 +21,46 @@ public class ImageResponse {
 
     public ImageResponse(Response response, Region region, Map<String, Double> results){
         setResponse(response);
+        setRegion(region);
         setResults(results);
     }
 
-    private void setResponse(Response response) {
-        this.response = response;
-    }
-
+    /**
+     * 解析json字符串，构造ImageResponse对象
+     * @param jsonStr json格式的图像处理结果字符串。
+     * @return 图像处理结果对象
+     * @throws RequestException
+     * @throws InternalException
+     */
     public static ImageResponse parse(String jsonStr) throws RequestException, InternalException {
+        // 响应的通用处理部分
         Response response =  Response.parse(jsonStr);
         Map<String, Double> results = new HashMap<>();
+        // 解析图像信息部分
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        Region region = Region.fromString(jsonObj.getString(ResponseKey.REGION_KEY));
+        // 发动机部位
+        Region region = Region.fromString(jsonObj.getString(ResponseKey.REGION_KEY).toUpperCase());
+        // 污染程度的置信度
         JSONArray arrayResults = jsonObj.getJSONArray(ResponseKey.IMAGE_RESULTS_KEY);
         Iterator<Object> iter = arrayResults.iterator();
         while(iter.hasNext()) {
             JSONObject obj = (JSONObject) iter.next();
             results.put(obj.getString(ResponseKey.RESULTS_NAME_KEY),
                     obj.getDouble(ResponseKey.RESULTS_SCORE_KEY));
-
         }
         return new ImageResponse(response, region, results);
+    }
+
+    public void setRegion(Region region) {
+        this.region = region;
+    }
+
+    public void setRegion(String regionStr){
+        this.region = Region.fromString(regionStr.toUpperCase());
+    }
+
+    public void setResponse(Response response) {
+        this.response = response;
     }
 
     public Map getResults() {
@@ -77,5 +96,7 @@ public class ImageResponse {
         this.response.setErrorMsg(errorMsg);
     }
 
-
+    public Region getRegion() {
+        return this.region;
+    }
 }

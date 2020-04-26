@@ -30,17 +30,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ImageProcessorTest {
+    final String resp1 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
+            "\"task_id\":\"22\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
+    final String resp2 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", \"region\":\"NOZZLE\", " +
+            "\"results\":[{\"name\":\"hsd1qingwei\",\"score\":\"0.1\"}, " +
+            "{\"name\":\"hsd2qingdu\",\"score\":\"0.5\"}, " +
+            "{\"name\":\"hsd3zhongdu\",\"score\":\"0.2\"}, " +
+            "{\"name\":\"hsd4zhongdu\",\"score\":\"0.1\"}, " +
+            "{\"name\":\"hsd5yanzhong\",\"score\":\"0.1\"}, " +
+            "]}";
+    int resultCount = 5;
     Configuration conf;
     String token = "";
     MockWebServer server;
     @Before
     public void start() throws IOException {
-
-        final String resp1 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"task_id\":\"22\", \"created_by\":\"kevin\", \"status\":\"SUCCESS\", \"image_id\":\"2222\"}";
-        final String resp2 = "{\"log_id\":\"1\", \"error_code\":\"200\", \"error_msg\":\"hello\", " +
-                "\"results\":[{\"name\":\"qingwei\",\"score\":\"0.1\"}, {\"name\":\"qingdu\",\"score\":\"0.9\"}]}";
-
         final Dispatcher dispatcher = new Dispatcher() {
 
             @NotNull
@@ -66,6 +70,7 @@ public class ImageProcessorTest {
         };
         server = new MockWebServer();
         server.setDispatcher(dispatcher);
+        //server.url("/product");
         server.start();
 
         conf = new PropertiesConfiguration();
@@ -139,7 +144,7 @@ public class ImageProcessorTest {
         } catch (RequestException | InternalException | IOException e) {
             fail(e.getMessage());
         }
-        assertEquals(2, results.getResults().size());
+        assertEquals(resultCount, results.getResults().size());
     }
 
 
@@ -154,7 +159,7 @@ public class ImageProcessorTest {
         } catch (RequestException | InternalException | IOException  e) {
             fail(e.getMessage());
         }
-        assertEquals(2, results.getResults().size());
+        assertEquals(resultCount, results.getResults().size());
     }
 
     @Test
@@ -166,7 +171,7 @@ public class ImageProcessorTest {
             ip.submit(image, new ResultCallback() {
                 @Override
                 public void callback(ImageResponse imageResponse) {
-                    assertEquals(2, imageResponse.getResults().size());
+                    assertEquals(resultCount, imageResponse.getResults().size());
                 }
             });
         } catch (RequestException | InternalException | IOException  e) {
