@@ -1,19 +1,29 @@
 package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.common.*;
+import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.RequestException;
+import com.epacs.sdk.common.TaskStatus;
 
+/**
+ * 任务信息
+ *
+ * @create: 2020.04.13 18:24
+ * @author: Kevin
+ */
 public class TaskResponse {
     private Response response;
-    private int    taskId;
-    private String  createdBy;
-    private TaskStatus status;
-    private String      imageId;
+    private int taskId; //任务编号
+    private String createdBy; //任务创建者
+    private TaskStatus status; //任务的状态
+    private String imageId; //任务处理图像的id
 
-    public TaskResponse(){}
+
+    public TaskResponse() {
+    }
 
     public TaskResponse(Response response, int taskId, String createdBy,
-                        TaskStatus status, String imageId){
+                        TaskStatus status, String imageId) {
         setResponse(response);
         setTaskId(taskId);
         setCreatedBy(createdBy);

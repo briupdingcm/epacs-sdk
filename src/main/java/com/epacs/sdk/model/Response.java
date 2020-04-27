@@ -1,7 +1,9 @@
 package com.epacs.sdk.model;
 
 import com.alibaba.fastjson.JSONObject;
-import com.epacs.sdk.common.*;
+import com.epacs.sdk.common.ErrorCode;
+import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.RequestException;
 
 public class Response {
     private int logId;
@@ -10,13 +12,12 @@ public class Response {
 
     public Response(){}
 
-
-
     public Response(int logId, int errorCode, String errorMsg){
         setLogId(logId);
         setErrorCode(errorCode);
         setErrorMsg(errorMsg);
     }
+
 
     public static Response parse(String jsonStr) throws InternalException, RequestException {
         JSONObject jsonObj = JSONObject.parseObject(jsonStr);
