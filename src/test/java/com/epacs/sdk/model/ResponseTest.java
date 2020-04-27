@@ -1,5 +1,7 @@
-package com.epacs.sdk.common;
+package com.epacs.sdk.model;
 
+import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.RequestException;
 import com.epacs.sdk.model.Response;
 import org.junit.jupiter.api.Test;
 
@@ -19,11 +21,11 @@ public class ResponseTest{
         try {
             assertNotNull(parse(jsonStr));
         } catch (InternalException | RequestException e) {
-            fail("");
+            fail(e);
         }
     }
 
-    @Test
+    @org.junit.Test(expected = InternalException.class)
     public void testParseEx(){
         try {
             Response.parse(errJsonStr);

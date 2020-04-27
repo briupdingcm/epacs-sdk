@@ -3,12 +3,17 @@ package com.epacs.sdk.common;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 发动机部位
+ * @create: 2020.04.13 18:24
+ * @author: Kevin
+ */
 public enum Region {
-    NOZZLE,
-    AIRINELET,
-    CLINDER,
-    CROWN,
-    INLETVALVE;
+    NOZZLE, //喷油嘴
+    AIRINELET, //进气道
+    CLINDER, //缸壁
+    CROWN,   //活塞顶
+    INLETVALVE;  //进气阀
 
     // Implementing a fromString method on an enum type
     private static final Map<String, Region> stringToEnum = new HashMap<String, Region>();

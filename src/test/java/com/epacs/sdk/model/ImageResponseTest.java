@@ -1,9 +1,13 @@
-package com.epacs.sdk.common;
+package com.epacs.sdk.model;
 
+import com.epacs.sdk.common.InternalException;
+import com.epacs.sdk.common.Region;
+import com.epacs.sdk.common.RequestException;
 import com.epacs.sdk.model.ImageResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,6 +73,6 @@ public class ImageResponseTest{
 
     @Test
     public void getRegion(){
-        assertEquals(Region.NOZZLE, ir.getRegion());
+        Assertions.assertEquals(Region.NOZZLE, ir.getRegion());
     }
 }
